@@ -1,0 +1,192 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>ToDo App</title>
+
+		<link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet">
+
+		<!-- Bootstrap CSS -->
+		<link rel="stylesheet" href="{% static 'todo/bs/css/flatly.css' %}" />
+		<link rel="stylesheet" href="{% static 'todo/styles.css' %}" />
+
+		
+	</head>
+	<body>
+
+		<div class="container-fluid" id="wrapper">
+			<div class="row">
+				<div class="col-lg-4 col-lg-offset-4" id="content">
+					<h3 style="text-align:center">{{ mydate | date:"D d M Y" }}</h3>
+					<h2>SO WHAT'S FOR TODAY?</h2>
+					
+					<form action="{% url 'add' %}" method="POST" role="form">
+						{% csrf_token %}
+						<div class="form-group">
+							<div class="input-group" style="background-color:rgb(228, 204, 181)">
+									{{ form.text }}
+									&nbsp;&nbsp;
+									{{form.priority.label}}
+									&nbsp;&nbsp;
+									
+											{% for p in form.priority|slice:"0:3" %}
+											<li style="display:inline">
+												{{ p }} 
+											</li>
+											{% endfor %}
+							  <span class="input-group-btn">
+								  <button type="submit" class="btn btn-default" id="add-btn" style="height:71px; z-index: 0">ADD</button>
+							  </span>
+							</div>
+						</div>
+					</form>
+					<script>
+						
+					</script>
+
+					<div class="row t10">
+						<div class="col-lg-12">
+							<div class="btn-toolbar">
+								<div class="btn-group">
+									<a href="{% url 'deleteCompleted' %}">
+									<button type="button" class="btn btn-warning">
+										<i class="glyphicon glyphicon-trash"></i> DELETE COMPLETED
+									</button>
+									</a>
+								</div>
+								<div class="btn-group">
+									<a href="{% url 'deleteall' %}">
+									<button type="button" class="btn btn-warning">
+										<i class="glyphicon glyphicon-trash"></i> DELETE ALL
+									</button>
+									</a>
+								</div>
+
+								<div class="btn-group">
+										<button type="button" class="btn btn-warning" id="maillist" style="z-index:0">
+											<i class="glyphicon glyphicon-envelope"></i> EXPORT & MAIL
+										</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- The Modal -->
+					<div id="myModal" class="modal">
+
+							<!-- Modal content -->
+							<div class="modal-content">
+							<span class="close">&times;</span>
+							<div class="mailtoself">
+								Mail to self
+								<form action="{% url 'mailall' %}" method="POST" role="form">
+									{% csrf_token %}
+									<div class="form-group">
+										<div class="input-group" style="background-color:rgb(228, 204, 181)">
+												{{ mailform.notes }}
+										<span class="input-group-btn" style="background-color:#95a5a6">
+											<button type="submit" class="btn btn-default" id="add-btn" style="height:71px; margin-left: 0px;">SEND</button>
+										</span>
+										</div>
+									</div>
+								</form>
+							</div>
+							<hr>
+							<div class="mailtoelse">
+								Mail to someone else
+								<form action="{% url 'mailall' %}" method="POST" role="form">
+									{% csrf_token %}
+									<div class="form-group">
+										<div class="input-group" style="background-color:rgb(228, 204, 181)">
+												{{ mailform.mailto }}
+												&nbsp;&nbsp;
+												{{ mailform.notes }}
+												&nbsp;&nbsp;
+										  <span class="input-group-btn" style="background-color:#95a5a6">
+											  <button type="submit" class="btn btn-default" id="add-btn" style="height:71px;margin-left: 0px">SEND</button>
+										  </span>
+										</div>
+									</div>
+								</form>
+								
+							</div>
+							</div>
+						
+					</div>
+					
+					<ul class="list-group t20">
+                        {% for todo in todo_list %}
+							{% if todo.complete %}	
+							<li class="list-group-item todo-completed"><a href="{% url 'completetoggle' todo.id %}">{{todo.text}}</a></li>
+							{% else %}
+								{% if todo.priority == 0 %} 
+									<li class="highp list-group-item todo-incomplete"><a href="{% url 'completetoggle' todo.id %}">{{todo.text}}</a></li>
+								{% endif %}
+								{% if todo.priority == 1 %} 
+									<li class="modp list-group-item todo-incomplete"><a href="{% url 'completetoggle' todo.id %}">{{todo.text}}</a></li>
+								{% endif %}
+								{% if todo.priority == 2 %} 
+									<li class="lowp list-group-item todo-incomplete"><a href="{% url 'completetoggle' todo.id %}">{{todo.text}}</a></li>
+								{% endif %}
+							{% endif %}
+                        {% endfor %}
+					</ul>
+				</div>
+			</div>
+
+			<footer>
+				<div class="row pad">
+					<div class="col-lg-12 text-center">
+						<strong>Django Assignment</strong>
+					</div>
+				</div>
+			</footer>
+		</div>
+		<script>
+
+		if('{{message}}' != '')
+			alert('{{message}}')
+
+		
+		
+			// Get the modal
+			var modal = document.getElementById('myModal');
+			
+			// Get the button that opens the modal
+			var btn = document.getElementById("maillist");
+			
+			// Get the <span> element that closes the modal
+			var span = document.getElementsByClassName("close")[0];
+			
+			// When the user clicks the button, open the modal 
+			btn.onclick = function() {
+				if('{{ long }}' === '0')
+				{
+					alert('No todos to export!')
+				}
+				else 
+				{
+					modal.style.display = "block";
+				}
+				
+			}
+			
+			// When the user clicks on <span> (x), close the modal
+			span.onclick = function() {
+				modal.style.display = "none";
+			}
+			
+			// When the user clicks anywhere outside of the modal, close it
+			window.onclick = function(event) {
+				if (event.target == modal) {
+				modal.style.display = "none";
+				}
+			}
+		
+		</script>
+	
+	</body>
+</html>
