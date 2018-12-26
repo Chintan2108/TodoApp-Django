@@ -13,7 +13,7 @@ def home(request):
     if(label == 'home'):
         prompt = ''
     label = 'home'
-    todo_list = list(Todo.objects.all().order_by('priority'))
+    todo_list = list(Todo.objects.all().order_by('priority')) #pylint: disable=E1101
     print(todo_list)
     listlen = len(todo_list)
     form = TodoForm()
@@ -52,7 +52,7 @@ def completeTodoToggle(request, todo_id):
     global prompt, label
     label = 'complete'
     prompt = ''
-    todo = Todo.objects.get(pk=todo_id)
+    todo = Todo.objects.get(pk=todo_id)  #pylint: disable=E1101
     if(todo.complete):
         todo.complete = False
         todo.priority = 0
@@ -66,7 +66,7 @@ def completeTodoToggle(request, todo_id):
 def deleteCompleted(request):
     global prompt, label
     label = 'deletecompleted'
-    todo_list = Todo.objects.filter(complete__exact=True)
+    todo_list = Todo.objects.filter(complete__exact=True)  #pylint: disable=E1101
     if(len(todo_list) > 0):
         todo_list.delete()
         prompt = 'Completed todos deleted!'
@@ -77,7 +77,7 @@ def deleteCompleted(request):
 def deleteAll(request):
     global prompt, label
     label = 'deleteall'
-    todo_list = Todo.objects.all()
+    todo_list = Todo.objects.all()  #pylint: disable=E1101
     if(len(todo_list) > 0):
         todo_list.delete()
         prompt = 'All todos deleted!'
@@ -90,7 +90,7 @@ def deleteAll(request):
 def mailAll(request):
     global prompt, label
     label = 'mail'
-    todo = Todo.objects.values()
+    todo = Todo.objects.values()  #pylint: disable=E1101
     items = []
     for i in todo:
         flag = ': completed' if i['complete'] else ': incomplete'
